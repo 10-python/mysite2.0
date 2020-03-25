@@ -1,0 +1,323 @@
+{% extends 'blog2.html' %}
+{% load staticfiles %}
+{% block one%}{% endblock %}
+{% block center_content%}
+    <div class="banner-area">
+        <div class="container" >
+            <div class="row">
+            {% if user.is_authenticated %}
+                <div class="col-lg-5 col-xl-5 edit-right">
+                        <div class="banner-content"style="background: url({% static 's6.png' %}) no-repeat;background-position: center;background-size: cover;padding:10px 50px">
+							<div class="banner-title ">
+								<h1>宇航员</h1>
+							</div>
+							<div class="banner-subtitle  ">
+								<h4>个人博客</h4>
+							</div>
+							<div class="banner-info">
+								<b style="color: rgb(107,102,168)">"直到有一天他向我跑来,叫住了我的名字, <br /> 那一刻,我漫长的等待结束了。"</b>
+							</div>
+						</div>
+                        <div class="panel" id="change_password">
+                            <div class="panel-heading">
+                                <h3 class="panel-title text-center" style="color: #7337ff">重置密码</h3>
+                            </div>
+                            <div class="panel-body">
+                                <form  method="POST" id="change_password_form">
+                                    {% csrf_token %}
+                                    {% for feild in change_password_form %}
+                                        {% if not feild.is_hidden %}
+                                            <label for="{{ feild.id_for_label }}">{{ feild.label }}</label>
+                                        {% endif %}
+                                        {{ feild }}
+                                    {% endfor %}
+                                    <span id="password-tip" class="floatleft text-danger" style="font-weight: bold"></span>
+                                    <div class="clearfix"></div>
+                                <p>
+                                    <div class="floatleft"><a href="{% url 'forget_password' %}?from={{ request.get_full_path }}">忘记密码?</a></div>
+
+                                    <div class="floatright">
+                                        <input type="button" value="修改" class="btn  btn-lg btn-change " onclick="change_password()">
+                                    </div>
+                                </p>
+                                </form>
+
+                            </div>
+                        </div>
+                        <div class="panel " id="bind_email">
+                            <div class="panel-heading">
+                                <h3 class="panel-title text-center"style="color: #7337ff"> 绑定邮箱</h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <form action="" method="POST" id="bind_email_form">
+                                    {% csrf_token %}
+                                    {% for feild in bing_email_form %}
+                                        {% if not feild.is_hidden %}
+                                            <label for="{{ feild.id_for_label }}">{{ feild.label }}</label>
+                                        {% endif %}
+                                        {{ feild }}
+                                    {% endfor %}
+                                    <p id="email-tip" class=" text-danger" style="font-weight: bold"></p>
+                                    
+                                    <div class="floatleft" style="margin-top: 20px">
+                                        <input id="send_code" type="button" class="btn btn-change" disabled="disabled" value="发送验证码" onclick="sendcode();">
+                                    </div>
+                                    <div class="floatright" style="margin-top: 20px">
+                                        <input type="button" value="绑定" class="btn btn-change" onclick="bind_email()">
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                </div>
+                <div class="col-lg-6 col-xl-6 box-shadow">
+                    <div class="edit-left-inner">
+                        {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="用户头像"  class="img-fluid"style="max-width: 20%;border-radius: 15%;margin-top: 10px;">
+                        {% else %}
+                        <h5>暂无头像</h5>
+                        {% endif %}
+                        <p class="user-info-item" id="info-item1" style="margin-top: 20px"><span class="fa fa-user"></span>用户名: {{ user.username }}</p>
+                        <form method="post" action="." enctype="multipart/form-data" style="margin: 10px 0px">
+                            {% csrf_token %}
+                            <div class="form-group  user-info-item" id="info-item3">
+                                <label for="nickname">昵称:</label>
+                                <input type="text" class="form-control" id="nickname" name="nickname" value="{{ profile.nickname }}">
+                            </div>
+                            <div class="form-group  user-info-item" id="info-item5" style="padding-left: 10px">
+                                <label for="avatar">上传/更换头像:</label>
+                                <input type="file"  name="avatar" id="avatar" style="display: inline-block;max-width: 200px">
+                                <button type="submit" class="btn btn-lg floatright btn-change">修改</button>
+                                <div class="clearfix"></div>
+                            </div>
+                        </form>
+                        <p class="user-info-item" id="info-item2"><span class="fa fa-envelope"></span>
+                            {% if user.email %}
+                                <span>邮箱:{{ user.email }}</span>
+                            {% else %}
+                                <span>邮箱:未绑定&nbsp;<a class="email-option" onclick="email_option()" style="color: #F44336;cursor: pointer">绑定邮箱</a></span>
+                            {% endif %}
+                        </p>
+                        <p class="user-info-item" id="info-item4"><span class="fa fa-send"></span><a class="password-option" onclick="password_option()"style="color: #F44336;cursor: pointer">修改密码</a></p>
+                        {% if user.is_staff or user.is_superuser %}
+                        <p class="user-info-item" id="info-item7"><span class="fa fa-cog"></span><a href="{% url "admin:index" %}">后台管理</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                  <h2>未登录,跳转到首页...</h2>
+                    <script type="text/javascript">
+                   alert("您还未登录(退出成功)")
+                        window.location.href = '/';
+                    </script>
+            {% endif %}
+            </div>
+       </div>
+    </div>
+{% endblock %}
+
+
+
+{% block script_picture %}
+    <style>
+p#info-item1>span,p#info-item2>span,p#info-item3>span,p#info-item4>span,p#info-item5>span,p#info-item6>span,p#info-item7>span {
+padding: 10px 10px 10px 10px;
+}
+    form>p{
+     margin: 0px;
+     padding: 10px;
+    }
+     .banner-area {
+        padding-top: 210px;
+        padding-bottom: 165px;
+        background: url({% static 'assets/images/banner/1.jpg' %}) no-repeat;
+        background-size: cover;
+        background-position: center center;
+        }
+    .btn-change{
+        background-color: #6d63ff!important;
+        color: white;
+        border: solid #484444;
+        border-radius: 14px;
+        margin-top: 10px;
+        }
+    p.user-info-item {
+    border: solid #484444;
+    padding: 10px 5px;
+    border-radius: 14px;
+}
+    p.user-info-item>span{
+        margin-right: 10px;
+    }
+    </style>
+       <script>
+        //进行操作切换
+        function password_option () {
+            $('#info-item4').addClass('set-backgroundcolor');
+            $('#change_password').addClass('active');
+            $('#bind_email').removeClass('active');
+            $('#info-item2').removeClass('set-backgroundcolor');
+            $('#password-tip').text('')
+        }
+       function email_option() {
+            $('#info-item2').addClass('set-backgroundcolor');
+            $('#bind_email').addClass('active');
+            $('#change_password').removeClass('active');
+            $('#info-item4').removeClass('set-backgroundcolor');
+            $("#email-tip").text('');
+        }
+        //先判断三次密码字段是否为空
+        $(function () {
+            $("#id_old_password").focusout(function () {
+                password = $('#id_old_password').val();
+                if (password == '') {
+                    $("#id_old_password").attr('placeholder', '该字段不能为空');
+                }
+            })
+        });
+        $(function () {
+            $("#id_new_password").focusout(function () {
+                password = $('#id_new_password').val();
+                if (password == '') {
+                    $("#id_new_password").attr('placeholder', '该字段不能为空');
+                }
+            })
+        });
+        $(function () {
+            $("#id_new_password_agin").focusout(function () {
+                password = $('#id_new_password_agin').val();
+                if (password == '') {
+                    $("#id_new_password_agin").attr('placeholder', '该字段不能为空');
+                }
+            })
+        });
+
+        //判断前后密码是否一致
+        $(function () {
+            $("#id_new_password_agin").mouseleave(function () {
+                newpassword = $('#id_new_password').val();
+                newpassword_agin = $('#id_new_password_agin').val();
+                if (newpassword != newpassword_agin) {
+                    $("#password-tip").text('两次密码输入不一致');
+                } else if (newpassword == newpassword_agin) {
+                    $('#password-tip').text('')
+                }
+            })
+        });
+        //修改密码表单验证
+
+        function change_password() {
+            $.ajax({
+                url: '{% url "change_password_ajax"%}',
+                type: 'POST',
+                data: $('#change_password_form').serialize(),
+                caches: false,
+                success: function (data) {
+                    if (data['status'] == "SUCCESS") {
+                        setTimeout(function(){window.location.reload()},2000);
+                        layer.alert("修改密码成功,请重新登录")
+                    } else {
+                        layer.alert(data['old_password'])
+                    }
+                }
+            })
+        }
+        //发送验证码
+        function sendcode(){
+             $("#email-tip").text('');
+            var email = $("#id_email").val();
+            if (email == "") {
+                $("#email-tip").text('* 邮箱不能为空');
+                return false;
+            }
+            //发送验证码
+            $.ajax({
+                url: "{% url 'send_verification_code' %}",
+                type: "GET",
+                data: {
+                    'email': email,
+                    'send_for': 'bind_email_code'
+                },
+                cache: false,
+                success: function (data) {
+                    if (data['status'] == 'ERRORS')
+                    {alert(data['status']);}
+                }
+            });
+            //把按钮变灰
+            $('#send_code').addClass('disabled');
+            $('#send_code').attr('disabled', true);
+            var time = 30;
+            $('#send_code').val(time + 's');
+            var interval = setInterval(() => {
+                if (time <= 0) {
+                    clearInterval(interval);
+                    $('#send_code').removeClass('disabled');
+                    $('#send_code').attr('disabled', false);
+                    $('#send_code').val('发送验证码');
+                    return false;
+                }
+                time--;
+                $('#send_code').val(time + 's');
+            }, 1000);
+        }
+        //绑定邮箱表单验证
+        function bind_email(){
+             $.ajax({
+                url: '{% url "bindemail_ajax"%}?from={{ request.get_full_path }}',
+                type: 'POST',
+                data: $("#bind_email_form").serialize(),
+                caches: false,
+                success: function (data) {
+                    if (data['status'] == "SUCCESS") {
+                        window.location.reload();
+                    } else {
+                        $('#email-tip').text("出错:"+data['none'])
+                    }
+                }
+            })
+        }
+        //判断邮箱是否合法
+        $(function () {
+            $("#id_email").change(function () {
+                email = $('#id_email').val();
+                var correct_email = /^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/;
+                if (email == '') {
+                    $("#id_email").attr('placeholder', '该字段不能为空');
+                } else {
+                    if (correct_email.test(email) == false) {
+                        $('#email-tip').text('请输入合法的Email地址');
+                        $('#send_code').addClass('disabled');
+                        $('#send_code').attr('disabled', true)
+                    } else {
+                        $('#email-tip').text('');
+                        $('#send_code').removeClass('disabled');
+                        $('#send_code').attr('disabled', false);
+                    }
+                }
+
+            })
+        });
+        $('.cd-btn').click(function () {
+            $('.user_info_right_page').addClass('hidden');
+        })
+        $('.modal-close').click(function () {
+            $('.user_info_right_page').removeClass('hidden');
+        })
+
+
+    </script>
+     <style>
+         #change_password, #bind_email {
+            display: none;
+            width: 100%;
+        }
+
+        #change_password.active, #bind_email.active {
+            display: inline-block;
+        }
+    </style>
+
+{% endblock %}

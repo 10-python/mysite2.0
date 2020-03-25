@@ -1,0 +1,29 @@
+{% extends 'blog2.html' %}
+{% load staticfiles %}
+{% block one %}{% endblock %}
+{% block center_content %}
+  	<div class="banner-area banner-three">
+			<div class="container" style="border-radius: 14px;border: solid white;">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="banner-content">
+							<div class="banner-title white">
+								<h1>宇航员的个人博客</h1>
+							</div>
+							<div class="banner-subtitle white ">
+								<h4>{{ message }} !</h4>
+							</div>
+							<div class="banner-info">
+								<h4><a  href="{% url 'blog' %}" title="点击我返回首页" style="color:white;text-decoration: none" ><hr>点击我返回</a> </h4>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="banner-img" style="border-radius: 50%;border:solid rgba(255,255,255,0);overflow: hidden">
+							<img src="{%static 'assets/s.jpg'%}"  alt="banner" >
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+{% endblock %}

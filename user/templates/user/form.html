@@ -1,0 +1,80 @@
+{% extends "blog2.html " %}
+{% load staticfiles %}
+{% block one %}{% endblock %}
+{% block center_content %}
+ <div class="banner-area banner-three"><img src="{% static 's6.png' %}" alt="change_password_erea" style="position: fixed;right: 0;bottom: 0">
+                <div class="container">
+                        <div class="col-xl-6 col-lg-6">
+
+                            <div class="banner-content">
+							<div class="banner-title white">
+								<h1>宇航员</h1>
+							</div>
+							<div class="banner-subtitle white ">
+								<h4>个人博客</h4>
+							</div>
+							<div class="banner-info">
+								<p>"直到有一天他向我跑来,叫住了我的名字, <br /> 那一刻,我漫长的等待结束了。"</p>
+							</div>
+							<div class="social-media">
+								<ul>
+                                    <li class="active"><a class="weibo"><i class="fa fa-weibo"></i></a></li>
+                                    <li><a  class="qq"><i class="fa fa-qq"></i></a></li>
+                                    <li><a class="weixin"><i class="fa fa-weixin"></i></a></li>
+                                    <li><a class="mail"><i class="fa fa-envelope"></i></a></li>
+                                </ul>
+							</div>
+						</div>
+                            <hr>
+                        </div>
+
+                        <div class="col-lg-4 col-xl-4 ">
+                          <div class="panel panel-blue user_form_option" style="border: solid white;border-radius: 14px; padding: 10px">
+                          <div class="panel-heading" style="background-color:white;text-align: center">
+                            <h3 class="panel-title" style="color: #7337ff">{{ form_title }}</h3>
+                          </div>
+                          <div class="panel-body " >
+                            <form action="" method="POST" >
+                            {% csrf_token %}
+                            {% for feild in form %}
+                                {% if not feild.is_hidden %}
+                                <label for="{{ feild.id_for_label }}">{{ feild.label }}</label>
+                                {% endif %}
+                                {{ feild }}
+                                <p class="text-danger" style="min-height: 5px">{{ feild.errors.as_text }}</p>
+                            {% endfor %}
+                             <p  id="tip" class=" text-danger" style="min-height: 5px;">{{ form.non_field_errors }}</p>
+                            <div>
+                                <span >
+                                {% block other_button %}
+                                {% endblock %}
+                            </span>
+                               <input type="submit" value="{{ submit_text }}" class="btn btn-submit btn-login " id="submit_forget_form">
+                            </div>
+                            </form>
+
+                          </div>
+                        </div>
+                        </div>
+                </div>
+ </div>
+ <style>
+ input#id_forget_email,input#id_forget_code,input#id_forget_new_password{
+    border: solid;
+    border-radius: 14px;
+    height: 50px;
+}
+ form>p{
+     margin: 0px;
+ }
+  .btn-submit.btn-login {
+        padding: 10px;
+        border: solid #484444;
+        border-radius: 14px;
+        margin-top: 0px;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+{% block script_picture %}
+{% endblock %}

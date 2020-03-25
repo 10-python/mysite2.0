@@ -1,0 +1,373 @@
+{% extends 'blog2.html' %}
+{% load staticfiles %}
+{% load comment_tags %}
+{% load likes_tags %}
+{% load qq_tags %}
+ {% load notifications_tags %}
+{% notifications_unread %}
+{% block one %}{% endblock %}
+{% block center_content %}
+    <div class="blog-details-area section">
+    <div class="container box-shadow" >
+        <div class="row">
+            <div class=" col-lg-5 " >
+        <a href="{% url 'edit' user.pk  %}">
+                {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="用户头像" title="点击更换头像" style="border: solid aliceblue;border-radius: 15%;width: 100px;height: 100px;padding: 0px;margin: 20px" class="col-md-4" >
+                    {% else %}
+                 <div style="border-radius: 15%;width: 100px;line-height: 100px;padding: 0px 10px 0px;margin: 20px;background-color: cornflowerblue;color: white" class="col-md-4" title="点击更换头像">添加头像</div>
+                 {% endif %}
+                </a>
+                <h1 style="color: #3e569e;font-weight: bold; padding: 10px;border-bottom: aliceblue solid 2px;">{{ user.username }}</h1>
+                {% if user.is_staff or user.is_superuser %}
+                 <button class="btn btn-submit btn-lg " data-toggle="modal" data-target="#post_article" style="margin-top: 0px;margin-bottom: 10px;"title="发表文章">Post Article</button> <div class="clearfix"></div>
+                {% endif %}
+        <a href="{% url 'edit' user.pk %}">
+            <p  class="user-info-item" id="info-item1"><span class="fa fa-user"></span>
+            {% if  user.profile.nickname %}
+                <span title="修改昵称">昵称: {{ user.profile.nickname }}</span>
+            {% else %}
+                <span>昵称:无昵称(是否创建一个昵称!)</span>
+            {% endif %}
+            </p>
+        </a>
+        <a href="{% url 'edit' user.pk %}"><p class="user-info-item" id="info-item2"><span class="fa fa-send"></span>
+            {% if user.email %}
+                <span>邮箱:{{ user.email }}</span>
+            {% else %}
+            <span>邮箱:未绑定&nbsp;绑定邮箱</span>
+            {% endif %}
+        </p></a>
+                        <p class="user-info-item" id="info-item3"><span class="fa fa-book"></span><span><a class="collect-option">收藏文章</a></span></p>
+
+                        <a href="{% url 'edit' user.pk %}"><p class="user-info-item" id="info-item4"><span class="fa fa-pencil"></span><span>修改密码</span></p></a>
+                        <a href="{% url "logout" %}?from={{ request.get_full_path }}"><p class="user-info-item" id="info-item5"><span class="fa fa-server"></span><span>退出</span></p></a>
+                        {% if user.is_staff or user.is_superuser %}
+                          <a href="{% url "admin:index" %}">  <p class="user-info-item" id="info-item7"><span class="fa fa-cog"></span><span>后台管理</span></p></a>
+                        {% endif %}
+                        <p class="user-info-item" id="info-item6"><span class="fa fa-clock-o"></span><span>上次登陆时间:{{ user.last_login|date:"Y-m-d H:i:s" }}</span>
+                        </p>
+
+
+            </div>
+            <div class="col-lg-7 " >
+                  <div  id="collect_list_blog" >
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>文章名称</th>
+                            <th>分类</th>
+                            <th>收藏时间</th>
+                            <th>收藏量</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for i in collect_list %}
+                            {% if i.content_object %}
+                            <tr>
+                                <td><a href="{% url 'blog_detail' i.content_object.pk %}">{{ i.content_object }} </a></td>
+                                <td> <a href="{% url 'blog_with_type' i.content_object.blog_type.id %}">{{ i.content_object.blog_type }}</a></td>
+                                <td>{{ i.collect_time }}</td>
+                                <td>
+                                    <div class="collect" onclick="collectChange(this,'{% get_content_type i.content_object %}',{{ i.content_object.pk }})">
+                                        <span class="collect_status fa fa-heart {% get_collect_status user i.content_object %}"></span>
+                                        <span class="collect_num">{% get_collect_count i.content_object %}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                     </div>
+                    <!--分页器-->
+                <div class="pagination-area">
+                    {% if not all_num.count == 0 %}
+                    <div class="pagination">
+                        <ul>
+                            {% if page_of_blogs.has_previous %}
+                              <li class="page"><a href="?page={{ page_of_blogs.previous_page_number }}">Prev</a></li>
+                            {% else %}
+                            <li class="page"><a>NO</a></li>
+                            {% endif %}
+                         {% for page_num in page_range %}
+                                {% if page_num == current_page_num %}
+                                    <li class="page active"><a >{{ page_num }}</a></li>
+                                {% else %}
+                                    {% if page_num == "..." %}
+                                        <li class="page"><a>...</a></li>
+                                    {% else %}
+                                      <li class="page"><a href="?page={{ page_num }}">{{ page_num }}</a></li>
+                                    {% endif %}
+                                {% endif %}
+                         {% endfor %}
+                        {% if page_of_blogs.has_next %}
+                                <li class="page pull-right"><a href="?page={{ page_of_blogs.next_page_number }}">Next</a></li>
+                            {% else %}
+                               <li class="page pull-right"><a>NO</a></li>
+                        {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+ <!--通知-->
+    <div class="container box-shadow"><div class="col-lg-12">
+         <div id="accordion">
+            <div class="card">
+              <div class="card-header">
+                <a class="card-link" data-toggle="collapse" href="#collapse_one">
+                    通知<span style="height: 40px; color:#ff455c;">{{ num }}</span>
+                    {% if num != 0 %}
+                    <a href="{% url 'dealwith' %}" class="floatright" style="color: white;font-weight: bold">清除所有消息</a>
+                    {% endif %}
+                </a>
+              </div>
+              <div id="collapse_one" class="collapse" data-parent="#accordion">
+                <div class="card-body">
+                   {% if all_msg %}
+                        {% for i in all_msg %}
+                        <div style="border-top: solid #3e569e">
+                            <div id="name_mesg">
+                            <span class="btn btn-outline-light floatright"style="font-weight: bold"><a href="{% url 'dealwith' %}?msg_id={{ i.id }}" >清除</a></span>
+                            <div style="font-family: monospace"> 用户:{{ i.actor }},在文章:<a href="{% url 'blog_detail' i.target.id %}" > {{ i.target|truncatechars:'8'|safe }}...</a></div>
+                            <p style="margin: 0px;border-bottom: solid #ffffff;font-family: monospace"> {{ i.recipient }}: {{ i.action_object|striptags|truncatechars:"50" }}...</p>
+                            <span style="font-family: fantasy;font-weight: bold"> 回复到:{{ i.verb|striptags  }}</span>
+
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+              </div>
+            </div>
+        </div>
+        </div></div>
+<!--博客列表-->
+        {% if user.is_staff or user.is_superuser %}
+         <div class="container box-shadow">
+            <div class="col-lg-12">
+                <table class="table table-hover blogs-table">
+                <thead>
+                <tr>
+                    <th>标题</th>
+                    <th>发布时间</th>
+                    <th>类型</th>
+                    <th>作者</th>
+                    <th>阅读量</th>
+                    <th>评论数</th>
+                    <th>收藏数</th>
+                    <th>点赞数</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for personal_blog in personal_blog_list %}
+                <tr id="personal_blog_{{ personal_blog.pk }}" class="personal_blog_item">
+                    <th><a href="{% url 'blog_detail' personal_blog.pk %}">{{ personal_blog.title }}</a></th>
+                    <th>{{ personal_blog.created_time }}</th>
+                    <th>{{ personal_blog.blog_type }}</th>
+                    <th>{{ personal_blog.author }}</th>
+                    <th>{{ personal_blog.get_read_num }}</th>
+                    <th>{% get_comment_count personal_blog %}</th>
+                    <th>{% get_collect_count personal_blog %}</th>
+                    <th>{% get_likes_count personal_blog%}</th>
+                    <th><a onclick="delete_blog({{ personal_blog.pk }});" >删除</a>/<a href="{% url 'update_blog' personal_blog.pk %}?from={{ request.get_full_path }}">编辑</a></th>
+                </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+            </div>
+         </div>
+<!--写博客-->
+        <div class="container">
+     <div class="col-xl-8  ">
+     <div class="modal fade " id="post_article" tabindex="1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                 <form id="post_article_modal" method="POST" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h4 class="modal-title">发表博客
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button></h4>
+                     </div>
+                    <div class="modal-body" >
+                           {% csrf_token %}
+                           {% for feild in article_form %}
+                               <div class="form-group">
+                                {% if not feild.is_hidden %}
+                                <label for="{{ feild.id_for_label }}">{{ feild.label }}:</label>
+                                {% endif %}
+                               {{ feild }}</div>
+                            {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-submit">完成</button>
+
+                    </div>
+                </form>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+         {% endif %}
+    </div>
+
+{% endblock %}
+{% block script_picture %}
+<script src="{% static 'assets/js/paginathing.js' %}"></script>
+<script type="text/javascript">
+  jQuery(document).ready(function($){
+    $('.blogs-table tbody').paginathing({
+      perPage: 3,
+      insertAfter: '.blogs-table',
+      pageNumbers: true,
+      containerClass: 'myblog_pagination_container',
+     activeClass: 'set_orange',
+    });
+  });
+</script>
+<style>
+    .card{
+    margin: 10px;
+    padding: 20px;
+    background-color: rgba(240, 248, 255, 0);
+    }
+    .set_orange>a{
+    background-color: #6d63ff !important;
+    color: white!important;
+    }
+.card-header {
+    margin: 10px 0px;
+    background-color: #6d63ff;
+    padding: 20px;
+    font-weight: bold;
+}
+.card-link{
+    padding: 10px;
+    color: white;
+}
+.leaf-left-bottom {
+  position: absolute;
+  bottom: 30%;
+  left: 0; }
+
+p#info-item1,p#info-item2,p#info-item3,p#info-item4,p#info-item5,p#info-item6,p#info-item7{
+    border: solid #6c62ff;
+    padding: 10px;
+    color: black;
+    width: 80%;
+    margin-left: 10%;
+}
+p#info-item1:hover,p#info-item2:hover,p#info-item3:hover,p#info-item4:hover,p#info-item5:hover,p#info-item6:hover,p#info-item7:hover {
+   background-color: #6d63ff;
+}
+p#info-item1>span,p#info-item2>span,p#info-item3>span,p#info-item4>span,p#info-item5>span,p#info-item6>span,p#info-item7>span {
+padding: 10px 10px 10px 10px;
+}
+p>a:hover,p>span>a:hover{
+    font-weight: bold;
+    color: white;
+}
+
+
+</style>
+<script src="https://cdn.bootcss.com/layer/2.3/layer.js"></script>
+<script>
+    //删除,收藏
+    function delete_blog(pk) {
+        layer.open(
+            {
+                title:'确认删除',
+                content:"确认要删除这篇文章吗?",
+                yes: function(index){ $.ajax({
+               url:'{% url 'delete_blog' %}',
+               type:'GET',
+               data:{
+                   pk:pk
+               },
+                cache:false,
+                success:function (data) {
+                      layer.close(index);
+                    if(data['status']=='SUCCESS'){
+                        //alert('删除成功');
+                        layer.alert('删除成功')
+                        $('#personal_blog_'+pk).remove();
+                    }else{
+                        layer.alert('操作失败(可能已经删除)');
+                    }
+                },
+                complete:function (xhr) {
+                    xhr=null;
+                }
+
+            })} ,
+            }
+        )
+
+    };
+    //收藏
+    function collectChange(obj, content_type, object_id) {
+        var is_collect = obj.getElementsByClassName('active').length == 0
+        $.ajax({
+            url: '{%  url 'collect_change' %}',
+            type: 'GET',
+            data: {
+                content_type: content_type,
+                object_id: object_id,
+                is_collect: is_collect,
+            },
+            cache: false,
+            success: function (data) {
+                console.log(data)
+                if (data['status'] == 'SUCCESS') {
+                    //更新收藏状态
+                    var element = $(obj.getElementsByClassName('collect_status'));
+
+                    if (is_collect) {
+                        element.addClass('active');
+                         layer.alert("收藏成功!")
+                    } else {
+                        element.removeClass('active');
+                         layer.alert("取消收藏成功!")
+
+                    }
+                    //更新收藏数量
+                    var collect_num = $(obj.getElementsByClassName('collect_num'));
+
+                    collect_num.text(data['collect_num']);
+                } else {
+                    if (data['code'] == 400) {
+                        $('#login_modal').modal('show');
+                    } else {
+                        alert(data['message']);
+                    }
+                }
+            },
+            error: function (xhr) {
+                console.log(xhr)
+            }
+        })
+    }
+</script>
+<style>
+ .django-ckeditor-widget{
+width: 100%;
+}
+#cke_id_content{
+width: 100%!important;
+
+}
+</style>
+{% endblock %}
+
+
+
+
+
+
+

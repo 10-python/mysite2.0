@@ -1,0 +1,108 @@
+{% extends 'blog2.html' %}
+{% block one %}{% endblock %}
+{% block center_content %}
+       <div class="blog-details-area section">
+            <div class="container box-shadow" style="border:solid rgba(255,255,255,0);border-radius: 14px;">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                             <form action="" method="POST" enctype="multipart/form-data" id="blog_change_form">
+                                <div class="panel-heading text-center">
+                                    <h4 class="panel-title text-center">修改博客</h4>
+                                 </div>
+                                <div class="panel-body">
+                                       {% csrf_token %}
+                                       {% for feild in update_form %}
+                                           <div class="form-group">
+                                            {% if not feild.is_hidden %}
+                                            <label for="{{ feild.id_for_label }}">{{ feild.label }}:</label>
+                                            {% endif %}
+                                           {{ feild }}
+                                           </div>
+                                        {% endfor %}
+                                </div>
+                                <div class="panel-footer" style="margin-top: 10px">
+                                    <button type="submit" class="btn  btn-lg floatright" style="background-color: #6d63ff">完成</button>
+                                    <span class="btn  btn-lg floatleft" onclick="window.location.href='{{ return_back_href }}'"style="background-color: #dddddd">返回</span>
+                                    <div class="clearfix"></div>
+                                </div>
+                             </form>
+                        </div>
+                    </div>
+            </div>
+       </div>
+{% endblock %}
+{% block script_picture %}
+<style>
+#blog_change_form>*{
+    padding: 10px;
+    font-size: medium;
+    color: #6b66a8;
+    font-family: monospace;
+}
+#blog_change_form{
+    border: dashed #7b6ece 2px;
+    padding: 10px;
+    border-radius: 14px;
+    margin: 50px 0px;
+}
+#blog_change_form > div.panel-body > div:nth-child(5) > label:nth-child(4){
+    display: none;
+}
+#blog_change_form input,#blog_change_form input:hover,#blog_change_form input:focus{
+    padding: 10px;
+    border: solid #e7e6f6 ;
+    border-radius: 14px;
+    width: 100%;
+}
+input#id_avatar:hover,input#id_avatar:focus,input#id_avatar{
+    padding: 0px;
+    margin: 10px;
+}
+#id_blog_type{
+    border: solid #e7e6f6;
+    border-radius: 14px;
+    padding: 10px;
+}
+#blog_change_form{
+    margin-top: 10px;
+
+}
+.django-ckeditor-widget{
+width: 100%;
+}
+#cke_id_content{
+width: 100%!important;
+
+}
+#avatar-clear_id{
+    display: none;
+}
+.panel-title{
+    font-size: x-large;
+    font-weight: bold;
+    padding: 10px;
+}
+#cke_id_content{
+    border: none;
+}
+.cke_inner .cke_reset{
+    border: none;
+}
+#cke_1_top{
+    background-color: aliceblue;
+    border-radius: 14px;
+}
+#cke_1_bottom {
+    user-select: none;
+    background-color: aliceblue;
+    border-radius: 14px;
+    padding: 10px;
+}
+.panel-footer{
+    background-color: rgba(255, 255, 255, 0);
+}
+#blog_change_form > div.panel-body > div:nth-child(5) > label:nth-child(1):after{
+    height: 10px;
+}
+</style>
+{% endblock %}

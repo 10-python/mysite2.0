@@ -1,0 +1,11 @@
+{% extends 'blog2.html' %}
+{% load staticfiles %}
+{% load comment_tags %}
+{% load likes_tags %}
+{% block one %}{% endblock %}
+{% block alert_type_date %}
+<div class="alert box-shadow" style="margin-top: 10px;color: #9b94ff;font-weight: bold">关于{{ type }},共有{{ all_num }}篇</div><hr>
+{% endblock %}
+{% block script_picture %}
+{% endblock %}
+

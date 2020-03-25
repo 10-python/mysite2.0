@@ -1,0 +1,901 @@
+{% load staticfiles %}
+{% load comment_tags %}
+{% load get_blog_avatar %}
+{% load likes_tags %}
+{% load notifications_tags %}
+<!DOCTYPE HTML>
+<html class="no-js" lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta name="author" content="smartit-source">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- title here -->
+		<title>宇航员 - 个人博客</title>
+        <!-- Favicon and Touch Icons -->
+        <link rel="shortcut icon" href="{% static 'assets/images/Z .png' %}">
+		<!-- Place favicon.ico in the root directory -->
+		<link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
+		<!-- Fonts -->
+		<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+		<link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
+		<link rel="stylesheet" href="{% static 'assets/css/flaticon.css' %}">
+		<!-- Plugin CSS -->
+		<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+		<link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+		<link rel="stylesheet" href="{% static 'assets/css/magnific-popup.css' %}">
+		<link rel="stylesheet" href="{% static 'assets/css/owl.carousel.css' %}">
+		<link rel="stylesheet" href="{% static 'assets/css/owl.theme.css' %}">
+		<link rel="stylesheet" href="{% static 'assets/css/owl.transitions.css' %}">
+		<link rel="stylesheet" href="{% static 'assets/css/jquery.barfiller.css' %}">
+		<!--Theme custom css -->
+		<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+		<!--Theme Responsive css-->
+		<link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}" />
+		<script src="{% static 'assets/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js' %}"></script>
+            <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+            <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+         <link rel="stylesheet" type="text/css" href="{% static 'flavr/css/animate.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'flavr/css/flavr.css' %}" />
+        <style>
+            .modal-footer{
+                padding: 0px!important;
+            }
+        </style>
+	</head>
+	<body>
+		<!-- header  -->
+		<header class="header-area" id="sticky">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-2 col-xs-6">
+						<div class="log-area">
+							<a href="{% url 'blog' %}" style="font-weight: bold;color: white;font-size: x-large">宇航员Blog</a>
+						</div>
+					</div>
+					<div class="col-md-9">
+						<div class="menu-area white">
+							<nav>
+								<ul>
+									<li><a href="{% url 'blog' %}">home</a></li>
+                                    {% if not user.is_authenticated %}
+									<li><a onclick="open_form()">登录&nbsp;/&nbsp;注册</a></li>
+                                    {% else %}
+                                        <li>
+                                            <a href="{% url 'user_info' %}">个人中心
+                                            {% if mesg_num %}
+                                                <svg viewBox="0 0 10 10" width="10px" height="10px">
+                                                <circle cx="5" cy="5" r="5" fill="#F44336"></circle>
+                                                </svg>&nbsp;{{ mesg_num }}
+                                            {% endif %}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+									<li><a data-toggle="modal" data-target="#contact" style="cursor: pointer">CONTACT</a></li>
+                                     <li><div class="widget-Subscribe-form">
+                                                <form action="{% url 'blog' %}?search={{ search }}">
+                                                    <div class="from-group">
+                                                        <input type="search" name="search" value="" placeholder="Enter your question"style="border-radius: 14px;border: solid white;background-color: #7b6ece;padding: 5px;color: yellow">
+                                                        <button type="submit"  style="border:solid rgba(255,255,255,0);border-radius: 14px;background-color: yellow"><i class="fa fa-search"></i></button>
+                                                    </div>
+                                                </form>
+                                          </div>
+                                     </li>
+
+
+								</ul>
+							</nav>
+						</div>
+					</div>
+					<div class="col-md-1 col-xs-6">
+						<div class="humbargar-area">
+							<div class="menu-icon text-right">
+								<span class="flaticon-menu humbargar color"></span>
+							</div>
+							<div class="close-area">
+								<span class="close"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<div class="sidebar-menu ">
+			<div class="close-area">
+				<span class="close"><i class="icon fa fa-times-circle"></i></span>
+			</div>
+			<div class="main-menu">
+				<nav>
+					<ul>
+                        <li><a href="{% url 'blog' %}">home</a></li>
+                        {% if not user.is_authenticated %}
+                        <li><a onclick="open_form();">登录&nbsp;/&nbsp;注册</a></li>
+                        {% else %}
+                            <li>
+                                <a href="{% url 'user_info' %}">个人中心
+                                            {% if mesg_num %}
+                                                <svg viewBox="0 0 10 10" width="10px" height="10px">
+                                                <circle cx="5" cy="5" r="5" fill="#F44336"></circle>
+                                                </svg>&nbsp;{{ mesg_num }}
+                                            {% endif %}
+                                 </a>
+                            </li>
+                             <li><a href="{% url 'logout' %}">退出</a></li>
+                            {% if user.is_superuser %}
+                            <li><a href="{% url 'admin:index' %}">后台管理</a></li>
+                            {% endif %}
+                        {% endif %}
+                       <li><a data-toggle="modal" data-target="#contact" style="cursor: pointer">CONTACT</a></li>
+                       <li><a href="{% url 'test' %}">关于我们</a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+        {% block one %}
+             {% if not search %}
+		<!-- 第一部分 -->
+		<div class="banner-area banner-three">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="banner-content">
+							<div class="banner-title white">
+								<h1>宇航员</h1>
+							</div>
+							<div class="banner-subtitle white ">
+								<h4>个人博客</h4>
+							</div>
+							<div class="banner-info">
+								<p>"直到有一天他向我跑来,叫住了我的名字, <br /> 那一刻,我漫长的等待结束了。"</p>
+							</div>
+							<div class="social-media">
+								<ul>
+                                    <li class="active"><a class="weibo"><i class="fa fa-weibo"></i></a></li>
+                                    <li><a  class="qq"><i class="fa fa-qq"></i></a></li>
+                                    <li><a class="weixin"><i class="fa fa-weixin"></i></a></li>
+                                    <li><a class="mail"><i class="fa fa-envelope"></i></a></li>
+                                </ul>
+							</div>
+						</div>
+					</div>
+                    <div class="col-md-6">
+                        <div class="post-thumnile">
+                            <div class="slide-thumbnile index_set_posistion_img">
+                                <div class="single-image">
+                                    <img src="{%static 'h.png'%}"  alt="banner"><div class="post-date two"><span>03</span></div>
+                                </div>
+                                <div class="single-image">
+                                    <img src="{%static 'h1.png'%}"  alt="banner"><div class="post-date two"><span>02</span></div>
+                                </div>
+                                <div class="single-image">
+                                    <img src="{%static 'h4.png'%}"  alt="banner"><div class="post-date"><span>01</span></div>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+				</div>
+			</div>
+		</div>
+            {% endif %}
+        {% endblock %}
+        {% block center_content %}
+		<!-- 主要区域	 -->
+		<div class="post-two-area">
+			<div class="container">
+				<div class="row">
+					<!--左边-->
+					<div class="col-lg-8">
+						<!---列表-->
+                    {% if search %}
+                        <div class="alert box-shadow" style="margin-top: 10px;color: #9b94ff;font-weight: bold">关于"关键字":<span style="color: red">{{ search }}</span>,共搜索到{{ search_num }}篇</div>
+                    {% endif %}
+						<div class="post-list">
+                         {% block alert_type_date %}{% endblock %}
+                            {% for blog in blogs %}
+							<div class="single-post">
+								<div class="inner-post">
+									<div class="post-img">
+										<a href="{% url 'blog_detail' blog.pk %}">
+                                            {% if blog.avatar %}
+                                               <img src="{{ blog.avatar.url }}" alt="blog" title="{{ blog.title }}">
+                                            {% else %}
+                                                <img src="{%static 'assets/s.png'%}" alt="default_picture"  title="default_picture">
+                                            {% endif %}
+                                        </a>
+									</div>
+									<div class="post-info">
+										<div class="post-title">
+											<h3><a href="{% url 'blog_detail' blog.pk %}">{{ blog.title }}</a></h3>
+										</div>
+										<div class="post-content">
+											<p>{{ blog.content|striptags|truncatechars:"50"|safe }}...</p>
+										</div>
+										<div class="blog-meta fix" >
+											<div class="meta-left pull-left">
+												<ul>
+													<li> <span class="fa fa-book" style="color: #6d63ff"></span> <p><a >{{ blog.blog_type }}</a> </p></li>
+													<li> <span class="flaticon-calendar clendar"></span> <p>{{ blog.created_time|date }}</p></li>
+													<li> <span class="flaticon-chat comment" style="color: #1fb5ad"></span> <p><a >{% get_comment_count blog %}</a></p></li>
+												</ul>
+											</div>
+											<div class="post-readmore pull-right">
+												<a href="{% url 'blog_detail' blog.pk %}" class="readmore-btn">Read More <span>+</span></a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="post-date one">
+                                    <span>
+                                        {% if blog.author.is_superuser %}
+                                            1
+                                         {% else %}
+                                            2
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+							{% endfor %}
+							<div class="pagination-area">
+                                {% if not all_num.count == 0 %}
+								<div class="pagination">
+									<ul>
+                                        {% if page_of_blogs.has_previous %}
+                                          <li class="page"><a href="?page={{ page_of_blogs.previous_page_number }}">Prev</a></li>
+                                        {% else %}
+										<li class="page"><a>NO</a></li>
+										{% endif %}
+                                     {% for page_num in page_range %}
+                                            {% if page_num == current_page_num %}
+                                                <li class="page active"><a >{{ page_num }}</a></li>
+                                            {% else %}
+										        {% if page_num == "..." %}
+                                                    <li class="page"><a>...</a></li>
+                                                {% else %}
+                                                  <li class="page"><a href="?page={{ page_num }}">{{ page_num }}</a></li>
+										        {% endif %}
+                                            {% endif %}
+                                     {% endfor %}
+                                    {% if page_of_blogs.has_next %}
+                                            <li class="page pull-right"><a href="?page={{ page_of_blogs.next_page_number }}">Next</a></li>
+                                        {% else %}
+                                           <li class="page pull-right "><a>NO</a></li>
+                                    {% endif %}
+									</ul>
+								</div>
+                                {% endif %}
+							</div>
+						</div>
+					</div>
+
+					<!--右边-->
+					<div class="col-lg-4">
+						<div class="sidebar-widget">
+                            <div class="single-widget search-widget box-shadow">
+								<div class="widget-inner">
+									<form action="{% url 'blog' %}?search={{ search }}">
+										<div class="search-from box-shadow">
+											<input type="text" id="search" name="search" placeholder="Serach">
+											<button class="search-icon"><i class="fa fa-search"></i></button>
+										</div>
+									</form>
+								</div>
+							</div>
+							<div class="single-widget profile-widget box-shadow">
+								<div class="widget-inner text-center">
+									<div class="profile-img">
+										<a><img src="{% static 'assets/s.png' %}" alt="profile"></a>
+									</div>
+									<div class="profile-name">
+										<h3>宇航员</h3>
+										<p>个人博客</p>
+									</div>
+									<div class="social-media">
+										<ul>
+                                            <li class="active"><a class="weibo"><i class="fa fa-weibo"></i></a></li>
+                                            <li><a  class="qq"><i class="fa fa-qq"></i></a></li>
+                                            <li><a class="weixin"><i class="fa fa-weixin"></i></a></li>
+                                            <li><a class="mail"><i class="fa fa-envelope"></i></a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+							<div class="single-widget category-widget box-shadow">
+								<div class="widget-inner">
+									<div class="widget-title">
+										<h3>Date</h3>
+									</div>
+									<div class="category-list">
+										<ul>
+                                            {% for blog_date in blogs_dates %}
+                                            <li class=""><a href="{% url 'blog_with_date' blog_date.year blog_date.month %}">{{ blog_date|date:"Y年m月d日" }}<span></span></a></li>
+                                            {%  endfor %}
+										</ul>
+									</div>
+								</div>
+							</div>
+							<div class="single-widget recent-post-widget box-shadow">
+								<div class="widget-inner">
+									<div class="widget-title">
+										<h3>热门博客</h3>
+									</div>
+									<div class="recent-post-list">
+                                        {%  for blog in hot_blogs %}
+										<div class="single-post">
+                                         {% get_blog_avatar_url blog as b %}
+                                          {% if b %}
+											<div class="posty-img" >
+												<a href="{% url 'blog_detail' blog.object_id %}"><img src="{% get_blog_avatar_url blog %}" alt="post"></a>
+											</div>
+                                          {% endif %}
+											<div class="post-title">
+												<h4> <a href="{% url 'blog_detail' blog.object_id %}">{{ blog.content_object |truncatechars:'5' }}...({{ blog.read_num }})</a></h4>
+											</div>
+										</div>
+                                        {% endfor %}
+									</div>
+								</div>
+							</div>
+							<div class="single-widget banner-widget box-shadow">
+								<div class="banner-img">
+                                    <div class='picture' id="picture"></div>
+									<div class="banner-title">
+										<h3>本周热度</h3>
+									</div>
+								</div>
+							</div>
+							<div class="single-widget category-widget box-shadow">
+								<div class="widget-inner">
+									<div class="widget-title">
+										<h3>分类</h3>
+									</div>
+									<div class="category-list">
+										<ul>
+                                        {% for blog_type in blogs_type %}
+                                        <li><a href="{% url 'blog_with_type' blog_type.id %}">{{ blog_type }}<span>({{ blog_type.blogs_count }})</span></a></li>
+                                        {%  endfor %}
+										</ul>
+									</div>
+								</div>
+							</div>
+                            <div class="single-widget category-widget box-shadow">
+								<div class="widget-inner">
+									<div class="widget-title">
+										<h3>阅读榜单</h3>
+									</div>
+										<div class="read-list-blog">
+                                            <div class="read-list" style="padding: 10px 30px 10px">
+                                                <ul style="display: inline-flex">
+                                                    <li class="active"><a href="javascript:void(0);">今日阅读榜/</a></li>
+                                                    <li class=""><a href="javascript:void(0);">昨日阅读榜/</a></li>
+                                                    <li class=""><a href="javascript:void(0);">7日阅读榜/</a></li>
+                                                </ul>
+                                            </div>
+                                            <div class="read-content category-list">
+                                                <div class="read-content-item hot-content-block ">
+                                                    <ul>
+                                                    {% for i in get_today_hot_blog %}
+                                                        <li><a href="{% url 'blog_detail' i.object_id %}">{{ i.content_object|truncatechars:'12' }}<span>({{ i.read_num }})</span></a></li>
+                                                    {% empty %}
+                                                    <li class="text-center "><a>今日阅读数0</a></li>
+                                                    {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <div class="read-content-item hot-content-block " style="display: none">
+                                                    <ul>
+                                                    {% for i in get_yesterday_hot_blog %}
+                                                        <li><a href="{% url 'blog_detail' i.object_id %}">{{ i.content_object|truncatechars:'12' }}<span>({{ i.read_num }})</span></a></li>
+                                                    {% empty %}
+                                                    <li class="text-center"><a>昨日阅读书0</a></li>
+                                                    {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <div class="read-content-item hot-content-block " style="display: none">
+                                                <ul>
+                                                {% for i in get_week_hot_blog %}
+                                                    <li><a href="{% url 'blog_detail' i.id %}">{{ i.title|truncatechars:'12' }}<span>({{ i.read_num_sum }})</span></a></li>
+                                                {% empty %}
+                                                 <li class="text-center"><a>本周阅读数0</a></li>
+                                                {% endfor %}
+                                                </ul>
+                                            </div>
+                                            </div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="leaf-left">
+				<img src="{% static 'assets/images/leaf-left.png' %}" alt="leaf-right">
+			</div>
+			<div class="leaf-right">
+				<img src="{% static 'assets/images/leaf-right.png' %}" alt="leaf-right">
+			</div>
+		</div>
+		<!-- end	 -->
+        {% endblock %}
+		<!-- footer area start here -->
+		<footer class="footer-area">
+			<div class="footer-bottom">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-6 col-md-offset-3">
+							<div class="copyright-area">
+								<p>&copy; 2020 yhy . All rights Reserved.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+		<!-- footer area end here -->
+        <!--登录注册联系表单模态框-->
+         <div class="container">
+            <div class="row">
+                <div class="modal fade" id="contact">
+                    <div class="modal-dialog">
+                    <div class="modal-content" style="border:none">
+                      <div class="modal-header" style="background-color: #6c62ff">
+                        <h4 class="modal-title " style="color: white">Contact
+                        <button type="button" class="close" data-dismiss="modal">&times;</button></h4>
+                      </div>
+                      <div class="modal-body">
+                              <form id="contactform" role="form" class="myForm" >
+                             {% csrf_token %}
+                             <div class="form-group">
+                                <input type="text" class="form-control" id="name" placeholder="Name">
+                             </div>
+                             <div class="form-group">
+                                <input type="email" class="form-control" id="email" placeholder="Email">
+                             </div>
+                             <div class="form-group">
+                                <textarea class="form-control" id="message" rows="10" placeholder="Message"></textarea>
+                             </div>
+                            <br/>
+                            <button type="button" class="btn btn-submit btn-login" onclick="contact();">发送</button>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-close" data-dismiss="modal">关闭</button>
+                      </div>
+
+                    </div>
+                    </div>
+                    </div>
+            </div>
+        </div>
+         {% if not user.is_authenticated %}
+         <div class="container">
+            <div class="row">
+                <div class="modal fade " id="login_modal" tabindex="1" role="dialog">
+                    <div class="modal-dialog " role="document">
+                        <div class="modal-content" style="border: solid white;border-radius: 14px;padding: 10px;">
+                             <form id="login_form_modal" class="login_panel" action="" method="POST">
+                                <div class="modal-header">
+                                     <h4 class="modal-title">
+                                         <span class="active">LOGIN</span>&nbsp;/&nbsp;<span onclick="show_register('.login_panel','.register_panel')" style="color: #7337ff">REGISTER</span>
+                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                     </h4>
+
+                                </div>
+                                <div class="modal-body">
+                                    {% csrf_token %}
+                                    {% for feild in login_form %}
+                                        <label for="{{ feild.id_for_label }}">{{ feild.label }}</label>
+                                        {{ feild }}
+                                        <span class="text-danger" style="font-weight: bold">{{ feild.errors.as_text }}</span>
+                                    {% endfor %}
+
+                                </div>
+                                <div id="login_modal_tip" class="text-danger" style="padding: 0 5%;font-weight: bold"></div>
+                                 <button type="submit" class="btn btn-submit btn-login ">LOGIN</button>
+                                 <hr >
+                                 <div style="margin-left: 40%;width: 40%;line-height: 20px;font-weight: bold;padding-top: 10px;padding-bottom: 10px">
+                                     <a href="{% url "forget_password" %}?from={{ request.get_full_path }}">忘记密码</a>
+                                 </div>
+                            </form>
+                             <form id="register_form_modal" class="register_panel hidden"  action="" method="POST">
+                                <div class="modal-header">
+                                    <h4 class="modal-title"><span class="active">REGISTER</span>&nbsp;/&nbsp;<span onclick="show_register('.register_panel','.login_panel')" style="color: #7337ff">LOGIN</span>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></h4>
+                                </div>
+                                <div class="modal-body" >
+                                    {% csrf_token %}
+                                    {% for feild in register_form %}
+                                        {% if not feild.is_hidden %}
+                                        <label for="{{ feild.id_for_label }}">{{ feild.label }}</label>
+                                        {% endif %}
+                                        {{ feild }}
+                                         <p class="text-danger {{ feild.id_for_label }}" style="font-weight: bold">{{ feild.errors.as_text }}</p>
+                                    {% endfor %}
+                                 <span class="text-danger" style="font-weight: bold"></span>
+                                </div>
+                                <div class="modal-footer">
+                                    <span id="register-tip" class="text-danger" style="font-weight: bold"></span>
+                                    <div class="clearfix"></div>
+                                     <button id="send_code" class="btn btn-submit  btn-register"  disabled="disabled">发送验证码</button>
+                                    <button type="submit" class="btn btn-submit btn-register ">REGISTER</button>
+                                    <div class="clearfix"></div>
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+		<!-- js file start -->
+		<script src="{% static 'assets/js/vendor/jquery-1.12.0.min.js' %}"></script>
+		<script src="{% static 'assets/js/plugins.js' %}"></script>
+		<script src="{% static 'assets/js/Popper.js' %}"></script>
+		<script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
+		<script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
+		<script src="{% static 'assets/js/isotope.pkgd.min.js' %}"></script>
+		<script src="{% static 'assets/js/imagesloaded.pkgd.min.js' %}"></script>
+		<script src="{% static 'assets/js/scrollup.js' %}"></script>
+		<script src="{% static 'assets/js/jquery.counterup.min.js' %}"></script>
+		<script src="{% static 'assets/js/waypoints.min.js' %}"></script>
+		<script src="{% static 'assets/js/jquery.appear.js' %}"></script>
+		<script src="{% static 'assets/js/jquery.barfiller.js' %}"></script>
+		<script src="{% static 'assets/js/main.js' %}"></script>
+		<!-- End js file -->
+         <script src="http://cdn.highcharts.com.cn/highcharts/highcharts.js"></script>
+         <script src="https://cdn.bootcss.com/layer/2.3/layer.js"></script>
+        <script src="{% static 'flavr/js/flavr.js' %}"></script>
+        <style>
+        @media screen and (max-width: 1000px) {
+            .index_set_posistion_img {
+                position: fixed;
+            }
+        }
+        div.owl-item>.single-image>.post-date>span{
+            display: none;
+        }
+        .banner-area.banner-three {
+            background: url({% static 'assets/images/banner/2.jpg' %}) no-repeat;
+            background-size: cover;
+            background-position: center center;
+            padding-top: 200px;
+            padding-bottom: 130px;
+        }
+
+        .modal-body>p{
+            margin: 0px;
+        }
+        .modal-body>input{
+            border: solid;
+            border-radius: 14px;
+            height: 50px;
+            width: 80%;
+            margin-left: 10%;
+        }
+        .btn-submit.btn-register,.btn-submit.btn-login {
+            padding: 10px;
+            border: solid #484444;
+            border-radius: 14px;
+            margin-top: 0px;
+            margin-bottom: 10px;
+        }
+        .single-image{
+           max-height: 500px;
+        }
+        </style>
+
+        {% block script_picture %}
+        <script>
+        // 图表配置
+        var options = {
+        chart: {
+        type: 'line',
+        backgroundColor: 'rgba(0,0,0,0)'
+
+        },                              //指定图表的类型，默认是折线图（line）
+        title: {text: null},                                // 标题
+        xAxis: {
+        categories: {{each_date_day_list|safe}},  // x 轴分类
+        labels:{
+            style:{
+                color:'#505994',
+                fontWeight:'bold',
+            }
+        }
+
+        },
+        yAxis: {
+        title: {text:null}  ,                            // y 轴标题
+        labels:{ enabled:false},
+        gridLineDashStyle:"Dash",
+        },
+        series: [{                              // 数据列
+        name: '阅读量',                        // 数据列名
+        data: {{ read_num_sum_list }},                     // 数据
+        marker:{
+            fillColor:'blue',
+        }
+        }],
+        plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },//数据标签
+        legend:{ enable:false},
+        credits:{ enabled: false} ,// 禁用版权信息
+        colors: ['#4F5893','#ED561B', '#DDDF00', '#64E572', '#FF9655']
+
+        };
+        // 图表初始化函数
+        var chart = Highcharts.chart('picture', options);
+        </script>
+        {% endblock %}
+        <script>
+        function contact () {
+        event.preventDefault();
+        var name=$("#name").val();
+        var email=$('#email').val();
+        var content=$('#message').val();
+        if (name==''|email==''|content==''){
+        layer.alert('表单不能为空');
+        return false;
+        }
+        layer.alert('开始提交')
+        $.ajax({
+         url:{% url 'contact' %},
+         type:'POST',
+         data:{
+            'name':name,
+             'email':email,
+            'content':content,
+         },
+         cache:false,
+         success:function (data) {
+             if(data['status']=='SUCCESS'){
+                 //成功发送
+                 layer.alert('发送成功');
+                 $('#contact').modal('hide');
+             }else{
+                 //发送失败
+                 layer.alert(data['status'])
+             }
+         },
+         complete:function (xhr) {
+             xhr=null;
+         }
+        }
+        )
+        }
+         function open_form(a=".login_panel",b=".register_panel") {
+               $("#login_modal").modal('show');
+                $(b).addClass('hidden');
+                $(a).removeClass('hidden');//优先显示登录表单
+
+         }
+         function show_register(login,register){
+                $(login).addClass('hidden');
+                $(register).removeClass('hidden');
+
+            }
+        $("#login_form_modal").submit(function () {
+            event.preventDefault();
+            $.ajax({
+                url: '{% url "login_for_modal"%}',
+                type: 'POST',
+                data: $(this).serialize(),
+                async:false,
+                caches: false,
+                success: function (data) {
+                    if (data['status'] == "SUCCESS") {
+                        window.location.reload();
+                    } else {
+                        $('#login_modal_tip').text("用户名或者密码不正确!")
+                    }
+                },
+                complete:function (XHR,TS) {
+                    XHR=null;
+                }
+            });
+        })
+        $("#send_code").click(function () {
+            var email=$("#register_email").val();
+            console.log(email)
+            if(email==""){
+                $(".register_email").text('* 邮箱不能为空');
+                return false;
+            }
+            //发送验证码
+            $.ajax({
+                    url:"{% url 'send_verification_code' %}",
+                    type:"GET",
+                    data:{
+                        'email':email,
+                        'send_for':'register_code',
+                    },
+                    cache:false,
+                    success:function (data) {
+                        if(data['status']!='SUCCESS')
+                        { alert(data['status']);}
+                    }
+                });
+            //把按钮变灰
+            $(this).addClass('disabled');
+            $(this).attr('disabled',true);
+            var time=30;
+            $(this).text(time+'s');
+            var interval=setInterval(()=> {
+                if(time<=0){
+                    clearInterval(interval);
+                     $(this).removeClass('disabled');
+                     $(this).attr('disabled',false);
+                     $(this).text('发送验证码');
+                     return false;
+                }
+                time--;
+                $(this).text(time+'s');
+            },1000);
+        });
+        //判断前后密码是否一致
+        $(function () {
+            $("#register_pwd_again").blur(function () {
+                newpassword = $('#register_pwd').val();
+                newpassword_agin = $('#register_pwd_again').val();
+                if (newpassword != newpassword_agin) {
+                    $(".register_pwd_again").text('两次密码输入不一致');
+                    //alert('请再次确认密码!'+newpassword_agin+'/'+newpassword)
+                }
+                else if(newpassword==''|newpassword_agin==''){
+                     $('.register_pwd_agin').text('密码不能为空');
+                }else if (newpassword == newpassword_agin) {
+                    $('.register_pwd_again').text('')
+                }
+            })
+        });
+        //判断邮箱是否合法
+        $(function () {
+            $("#register_email").change(function () {
+                email = $('#register_email').val();
+                var correct_email = /^\w{3,}(\.\w+)*@[A-z0-9]+(\.[A-z]{2,5}){1,2}$/;
+                if (email == '') {
+                    $("#register_email").attr('placeholder', '该字段不能为空');
+                } else {
+                    if (correct_email.test(email) == false) {
+                        $('.register_email').text('请输入合法的Email地址');
+                        {#alert('请输入合法的Email地址')#}
+                        $('#send_code').addClass('disabled');
+                        $('#send_code').attr('disabled', true)
+                    } else {
+                        $('.register_email').text('');
+                       // alert($('.register_username').text());
+                           $('#send_code').removeClass('disabled');
+                           $('#send_code').attr('disabled', false);
+                    }
+                }
+
+            })
+        });
+         //检验用户名是否有效
+        $('#register_username').blur(function () {
+            var username=$('#register_username').val()
+            var count=username.split('').length;
+            if(count>30|count<3){
+                console.log('false');
+                $('#register_username').attr('placeholder','该字段不能为空');
+                $('.register_username').text("请输入3到30位的用户名!");
+            }else{
+
+         $.ajax({
+                    url:"{% url 'check_username' %}",
+                    type:"GET",
+                    data:{
+                        'username':username,
+
+                    },
+                    cache:false,
+                    success:function (data) {
+                        if(data['status']=='ERROR') {
+                            $('.register_username').text('用户名已经存在!')
+                        }else{
+                            $('.register_username').text('')
+                        }
+                    },
+                    complete:function (xhr) {
+                        xhr=null;
+                    }
+                });}
+
+        })
+        //进行注册验证
+        $('#register_form_modal').submit(function () {
+            event.preventDefault();
+            var username=$("#register_username").val();
+            var email=$('#register_email').val();
+            var password=$('#register_pwd').val();
+           $.ajax({
+            url:'{% url  'register_ajax'%}',
+            type:'POST',
+            data:$(this).serialize(),
+
+            caches:false,
+            success:function (data) {
+                if (data['status'] == 'SUCCESS') {
+                    //成功
+                    alert('注册成功')
+                    $('.login_panel').removeClass('hidden');
+                    $('.register_panel').addClass('hidden');
+                } else {
+                    //失败
+                    //接收失败参数
+                    alert('操作失败')
+                    var error = data['none'];
+                    alert(error)} },
+
+
+
+            complete:function (xhr) {
+                xhr=null;
+            }
+        })
+        })
+        </script>
+        <script>
+        /*绑定切换排行榜页面*/
+        $(".read-list li").each(function(){
+        $(this).click(function(){
+        //设置active
+        var index = $(".read-list li").index($(this));
+        $(".read-list li").removeClass('active');
+        $(this).addClass('active');
+
+        //切换标签页
+        $(".read-content-item").hide();
+        $(".read-content-item:eq(" + index + ")").show();
+        });
+        });
+
+        /*设置排行样式*/
+        $(".read-content-item").each(function(){
+        var icons = ['glyphicon-thumbs-up', 'glyphicon-fire']
+        var old_icons = 'glyphicon-arrow-up'
+
+        for (var i = 0; i < icons.length; i++) {
+        var item = $(this).find('ul li:eq('+i+')');
+        var icon = item.find('.glyphicon');
+        if(icon){
+            icon.removeClass(old_icons)
+            icon.addClass(icons[i]);
+        }
+        };
+        });
+        </script>
+        <script>
+            $('.qq').on('click',function () {
+                 new $.flavr({ title : 'QQ',
+                            content: '<img src="{% static 'code/qq.jpg' %}" style="height:400px">',
+                            buttons : { close: {} }
+                 });
+            })
+            $('.weixin').on('click',function () {
+                 new $.flavr({ title : 'Weixin',
+                            content: '<img src="{% static 'code/weixin.png' %}" style="height:400px">',
+                            buttons : { close: {} }
+                 });
+            })
+             $('.mail').on('click',function () {
+                 new $.flavr('1765300685@qq.com');
+            })
+            $('.weibo').on('click',function () {
+                new $.flavr({ title : 'WEIBO', content
+                            : '<iframe  src="https://weibo.com/u/6424357768" frameborder="0" allowfullscreen></iframe>', buttons : { close
+                            : {} } });
+                }
+            )
+
+
+        </script>
+	</body>
+</html>

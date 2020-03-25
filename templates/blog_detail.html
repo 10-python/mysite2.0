@@ -1,0 +1,659 @@
+{% extends 'blog2.html' %}
+{% load staticfiles %}
+{% load comment_tags %}
+{% load likes_tags %}
+{% load qq_tags %}}
+{% load get_blog_avatar %}
+{% block one %}
+{% if blog.avatar %}
+<div class="breadcrumb-area" style="background: url({{ blog.avatar.url }}) ;background-position: center;padding-top: 200px;padding-bottom: 100px;background-attachment: fixed;">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="breadcrumb-title">
+                        <h2>{{ blog.title }}</h2>
+                    </div>
+                    <div class="breadcrumb-sibtitle">
+                        <h4>{{ blog.author }}/{{ blog.created_time|date }}/{{ blog.blog_type}}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif%}
+{% endblock %}
+{% block center_content %}
+    <div class="blog-details-area section">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-8">
+						<div class="single-post box-shadow">
+							 <div class="post-thumnile">
+								<div class="slide-thumbnile">
+                                    {% for blog in hot_blogs %}
+                                    {% get_blog_avatar_url blog as e %}
+                                    {% if e %}
+									<div class="single-image"><a href="{% url 'blog_detail' blog.object_id %}">
+										<img src="{% get_blog_avatar_url blog %}" alt="blog"></a>
+										<div class="" style="background-color: yellow;position: absolute;top: 0%;right: 0%;width: fit-content;height:40px;line-height:40px;padding:0px 10px;border-left: solid 1px rgba(255,255,255,0);">
+                                            <span>{{ blog.read_num }}<small><i class="fa fa-eye"></i></small></span>
+										</div>
+									</div>
+                                     {% endif %}
+                                    {% endfor%}
+
+								</div>
+							</div>
+                             <div class="hotblog-slide box-shadow"><i class="fa fa-arrow-up"></i>&nbsp;热门博客推荐&nbsp;<i class="fa fa-arrow-up"></i></div>
+                            <hr>
+							<!--标题,简介,内容-->
+							<div class="post-title">
+								<h3>{{ blog.title }}</h3>
+							</div>
+							<div class="blog-meta">
+								<ul>
+									<li title="作者"> <span class="flaticon-man-user user"></span> <p>By&nbsp;<b>{{ blog.author }}</b></p></li>
+									<li title="发布时间"> <span class="flaticon-calendar clendar"></span> <p>{{ blog.created_time|date }}  </p></li>
+                                    <li title="阅读量"> <span class="fa fa-fire" style="color: red"></span> <p>{{ blog.get_read_num}}  </p></li>
+                                    <a onclick="reply_to_position()" style="cursor: pointer;" title="我要评论"><li title="评论量"> <span class="flaticon-chat comment" style="color: #1fb5ad"></span> <p>{% get_comment_count blog %}</p></li></a>
+									<a href="{% url 'blog_with_type' blog.blog_type.id %}"><li title="类型"> <span class="fa fa-book" style="color: #6d63ff"></span> <p>{{ blog.blog_type}}</p></li></a>
+								</ul>
+							</div>
+							<div class="blog-content">
+								{{ blog.content|safe }}
+							</div>
+
+							<div class="social-share fix">
+								<div class="share-title pull-left" style="border: solid #ffffff;border-radius: 14px;background-color: #dddddd;padding: 10px">
+									<h4 style="color: #956eff;font-weight: bold;padding-top: 0px;margin: 0px">点赞收藏评论</h4>
+								</div>
+								<div class="share-media pull-right">
+									<div class="blog-meta">
+										<ul>
+										<li title="评论" href="#comment_form"><span class="flaticon-chat comment"></span><span>{% get_comment_count blog %}</span></li>
+                                        <li onclick="collectChange(this,'{% get_content_type blog %}',{{ blog.pk }})" title="收藏"><span class="fa fa-heart  {% get_collect_status user blog %} collect_status" ></span><span class="collect_num">{% get_collect_count blog %}</span></li>
+                                            <li onclick="likeChange(this,'{% get_content_type blog %}',{{ blog.pk }})" title="点赞"><span><i class="fa fa-thumbs-up {% get_like_status user blog %}"></i></span><span class="like_num">{% get_likes_count blog %}</span></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--分页-->
+						<div class="pagination-area">
+							<div class="pagination">
+                                <ul>
+                                    {% if first_blog %}
+                                        <li class="prev"><a class='page-link' href="{% url 'blog_detail' first_blog.id %}">Prev:{{ first_blog.title |truncatechars:"5" }}...</a></li>
+                                    {% else %}
+                                        <li class="prev"><a>到头了</a></li>
+                                    {% endif %}
+                                    {% if last_blog %}
+                                        <li class="next pull-right"><a href="{% url 'blog_detail' last_blog.id %}">Next:{{ last_blog.title|truncatechars:"5" }}..</a></li>
+                                    {% else %}
+                                        <li class="next pull-right"><a> 到底了</a></li>
+                                    {% endif %}
+                                </ul>
+							</div>
+						</div><hr>
+                         <strong>关于{{ blog.blog_type }},共有{{ all_num }}篇文章</strong><hr>
+						<!--评论-->
+                        <div class="blog-comments">
+                                    <!-- BLOG REPLY -->
+                                    <h3 class="reply-title">Leave A Reply</h3>
+                                    <div class="comment_area ">
+                                        {% if user.is_authenticated %}
+                                            <div class="alert open-comment"><a href="{% url "user_info" %}"><b>{{ user.username }}</b></a> ,欢迎评论!</div>
+                                            <form id="comment_form" action="{% url 'commit' %}" method="POST"class="box-shadow">
+                                                <div id="reply_content_containter" style="display:none;margin-bottom: 10px ">
+                                                     <p id="reply_title">回复:</p>
+                                                     <div id="reply_content"></div>
+                                                     <div id="del_reply" class="btn floatright" style="background-color: #6c62ff;color: white;">取消回复</div>
+                                                     <div class="clearfix"></div>
+                                                </div>
+                                                {% csrf_token %}
+                                                {% get_comment_form blog as v %}
+                                                {{ v }}
+                                                <span id="comment_error" class="text-danger" style="display:inline-block;font-weight: bold;margin-left: 10px;padding: 10px"></span>
+                                                <input type="submit" class=" btn btn-lg btn-submit" value="提交" >
+                                            </form>
+
+                                        {% else %}
+                                            <div class="alert box-shadow"><strong>未登录,登录之后方可评论!</strong>
+                                                <a onclick="open_form('.login_panel','.register_panel');"
+                                                   class="btn btn-login btn-lg">登录</a>or
+                                                <a onclick="open_form('.register_panel','.login_panel');"
+                                                   class="btn btn-login btn-lg ">注册</a>
+                                            </div>
+
+                                        {% endif %}
+                                    </div>
+                                    <hr>
+                                    <!-- END BLOG REPLY -->
+                                    <h4>Comments {% get_comment_count blog %}</h4>
+                               <hr>
+                                    <div class="blog-comment-content ">
+                                        <div class="media-list box-shadow " id="comment_list">
+                                            {% get_comment_list blog as comments %}
+                                            {% for comment in comments %}
+                                                <li class="media comment_item" id="root_{{ comment.pk }}">
+                                                <figure class="floatleft" style="border-radius: 15%;background-color: mediumpurple;width: 60px;height: 60px;color: white">
+                                                {% if comment.user.profile.avatar %}
+                                                    <img class="media-object" src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}">
+                                                {% else %}
+                                                    <span class="media-object" src="">{{  comment.user.id}}</span>
+                                                {% endif %}
+                                                </figure>
+                                                    <div class="media-body"> <h5 class="media-heading">{{ comment.user.username }}<span class="time">({{ comment.comment_time|date:"Y-m-d" }})</span></h5>
+                                                        <div class="comment-meta">
+                                                            <div class="comment-extra ">
+                                                              <div id="comment_{{ comment.pk }}"><span class="comment_text_{{ comment.pk }}">{{ comment.text|safe }}</span>
+                                                                <div class="comment_footer">
+                                                                     <a  onclick="delete_comment({{ comment.pk }},'#root_')" class="{% is_user request.user comment.user %}">删除</a>
+                                                                   <span class="like" onclick="likeChange(this,'{% get_content_type comment %}',{{ comment.pk }})">
+                                                                        <span class=" fa fa-a-c-up   "><i class=" fa fa-thumbs-up {% get_like_status user comment %}"></i></span>
+                                                                        <span class="like_num">{% get_likes_count comment %}</span>
+                                                                  </span>
+                                                                    <a class="reload" href="javascript:reply({{ comment.pk }});">Reply<i class="fa fa-share"></i></a>
+                                                                </div></div>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class=" media-list reply_list" id="reply_list">
+                                                            {% for reply in comment.root_comment.all %}
+                                                                <div class="reply_item" id="root_reply_{{ reply.pk }}">
+                                                                 <figure style="border-radius: 15%;background-color: mediumpurple;width: 60px;height: 60px;color: white" class="floatleft">
+                                                                {% if reply.user.profile.avatar %}
+                                                                     <img class="media-object" src="{{ reply.user.profile.avatar.url }}" alt="{{ reply.user.username }}" style="border-radius: 15%" width="60px">
+                                                                {% else %}
+                                                                    <span class="media-object" >{{ reply.user.id }}</span>
+                                                                {% endif %}
+                                                                 </figure>
+                                                                 <div class="comment-meta">
+                                                                        <h5 class="media-heading">{{ reply.user.username }} <span class="time">({{ reply.comment_time|date:'Y-m-d' }}):</span><span>回复:{{ reply.reply_to.username }}:</span></h5>
+                                                                        <div class="comment-extra ">
+                                                                            <div id="comment_{{ reply.pk }}">
+                                                                             <span class="comment_text_{{ reply.pk }}">  {{ reply.text|safe }}</span>
+
+                                                                            </div>
+                                                                            <div class="comment_footer">
+                                                                                <a  onclick="delete_comment({{ reply.pk }},'#root_reply_')" class="{% is_user request.user reply.user %}">删除</a>
+                                                                                 <span class="like" onclick="likeChange(this,'{% get_content_type reply %}',{{ reply.pk }})">
+                                                                                    <span class=" fa fa-a-c-up   "><i class="fa fa-thumbs-up {% get_like_status user reply %}"></i></span>
+                                                                                    <span class="like_num">{% get_likes_count reply %}</span>
+                                                                                 </span>
+                                                                                <a href="javascript:reply({{ reply.pk }});">回复<i class="fa fa-share"></i></a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+
+                                                    </div>
+                                                </li>
+                                            {% empty %}
+                                                <h4 id="no_comment">还没有评论哟,赶快抢占沙发吧!</h4>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                 </div>
+					</div>
+					<!--右边-->
+					<div class="col-lg-4">
+						<div class="sidebar-widget">
+                            <div class="single-widget search-widget box-shadow">
+								<div class="widget-inner">
+									<form action="{% url 'blog' %}?search={{ search }}">
+										<div class="search-from box-shadow">
+											<input type="text" id="search" name="search" placeholder="Search">
+											<button class="search-icon"><i class="fa fa-search"></i></button>
+										</div>
+									</form>
+								</div>
+							</div>
+							<div class="single-widget profile-widget box-shadow">
+								<div class="widget-inner text-center">
+									<div class="profile-img">
+                                       {% get_blog_user_avatar_url blog as e %}
+                                        {%  if e %}
+										<a><img src="{% get_blog_user_avatar_url blog %}" alt="profile"></a>
+                                        {% endif %}
+									</div>
+									<div class="profile-name">
+										<h3>{{ blog.author }}</h3>
+										<p>作者</p>
+									</div>
+									<div class="social-media">
+										<ul>
+                                            <li class="active"><a class="weibo"><i class="fa fa-weibo"></i></a></li>
+                                            <li><a  class="qq"><i class="fa fa-qq"></i></a></li>
+                                            <li><a class="weixin"><i class="fa fa-weixin"></i></a></li>
+                                            <li><a class="mail"><i class="fa fa-envelope"></i></a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+							<div class="single-widget category-widget box-shadow">
+								<div class="widget-inner">
+									<div class="widget-title">
+										<h3>Date</h3>
+									</div>
+									<div class="category-list">
+										<ul>
+                                            {% for blog_date in blogs_dates %}
+                                            <li class=""><a href="{% url 'blog_with_date' blog_date.year blog_date.month %}">{{ blog_date|date:"Y年m月d日" }}<span></span></a></li>
+                                            {%  endfor %}
+										</ul>
+									</div>
+								</div>
+							</div>
+						    <div class="single-widget recent-post-widget box-shadow">
+								<div class="widget-inner">
+									<div class="widget-title">
+										<h3>热门博客</h3>
+									</div>
+									<div class="recent-post-list">
+                                        {%  for blog in hot_blogs %}
+										<div class="single-post">
+                                        {% get_blog_avatar_url blog as b %}
+                                            {% if b %}
+                                                    <div class="posty-img" >
+                                                        <a href="{% url 'blog_detail' blog.object_id %}"><img src="{% get_blog_avatar_url blog %}" alt="post"></a>
+                                                    </div>
+                                            {% endif %}
+											<div class="post-title">
+												<h4> <a href="{% url 'blog_detail' blog.object_id %}">{{ blog.content_object |truncatechars:'5' }}...({{ blog.read_num }})</a></h4>
+											</div>
+										</div>
+                                        {% endfor %}
+									</div>
+								</div>
+							</div>
+							<div class="single-widget category-widget box-shadow">
+								<div class="widget-inner">
+									<div class="widget-title">
+										<h3>分类</h3>
+									</div>
+									<div class="category-list">
+										<ul>
+                                        {% for blog_type in blogs_type %}
+                                        <li><a href="{% url 'blog_with_type' blog_type.id %}">{{ blog_type }}<span>({{ blog_type.blogs_count }})</span></a></li>
+                                        {%  endfor %}
+										</ul>
+									</div>
+								</div>
+							</div>
+                            <div class="single-widget category-widget box-shadow">
+								<div class="widget-inner">
+									<div class="widget-title">
+										<h3>阅读榜单</h3>
+									</div>
+										<div class="read-list-blog">
+                                            <div class="read-list" style="padding: 10px 30px 10px">
+                                                <ul style="display: inline-flex">
+                                                    <li class="active"><a href="javascript:void(0);">今日阅读榜/</a></li>
+                                                    <li class=""><a href="javascript:void(0);">昨日阅读榜/</a></li>
+                                                    <li class=""><a href="javascript:void(0);">7日阅读榜/</a></li>
+                                                </ul>
+                                            </div>
+                                            <div class="read-content category-list">
+                                                <div class="read-content-item hot-content-block ">
+                                                    <ul>
+                                                    {% for i in get_today_hot_blog %}
+                                                        <li><a href="{% url 'blog_detail' i.object_id %}">{{ i.content_object|truncatechars:'12' }}<span>({{ i.read_num }})</span></a></li>
+                                                    {% empty %}
+                                                    <li class="text-center "><a>今日阅读数0</a></li>
+                                                    {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <div class="read-content-item hot-content-block " style="display: none">
+                                                    <ul>
+                                                    {% for i in get_yesterday_hot_blog %}
+                                                        <li><a href="{% url 'blog_detail' i.object_id %}">{{ i.content_object|truncatechars:'12' }}<span>({{ i.read_num }})</span></a></li>
+                                                    {% empty %}
+                                                    <li class="text-center"><a>昨日阅读书0</a></li>
+                                                    {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <div class="read-content-item hot-content-block " style="display: none">
+                                                <ul>
+                                                {% for i in get_week_hot_blog %}
+                                                    <li><a href="{% url 'blog_detail' i.id %}">{{ i.title|truncatechars:'12' }}<span>({{ i.read_num_sum }})</span></a></li>
+                                                {% empty %}
+                                                 <li class="text-center"><a>本周阅读数0</a></li>
+                                                {% endfor %}
+                                                </ul>
+                                            </div>
+                                            </div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	</div>
+{% endblock %}
+{% block script_picture %}
+<style>
+.django-ckeditor-widget{
+width: 100%;
+}
+#cke_id_content{
+width: 100%!important;
+
+}
+
+h4#no_comment{
+    color: #956eff;
+    padding: 10px;
+}
+div.hotblog-slide{
+    background-color: #7b6ece;
+    width: fit-content;
+    height: 50px;
+    left: auto;
+    position: relative;
+    top: 0%;
+    text-align: center;
+    line-height: 50px;
+    color: white;
+    font-weight: bold;
+    font-size: x-large;
+    padding: 0px 10px;
+}
+div.owl-wrapper-outer{
+    min-height: 233px;
+    max-height: 300px;}
+.btn-login {
+    background-color: #6c62ff;
+    border: solid #ffff;
+    border-radius: 14px;
+}
+
+.comment-meta {
+margin: 5px;
+border: solid 1px;
+border-radius: 14px;
+padding: 10px;
+}
+figure{
+margin: 10px;
+}
+img.media-object{
+    border-radius: 15%;width: 60px;height: 60px;
+}
+h5.media-heading{
+line-height: 30px;
+margin-bottom: 0px;
+}
+h3.reply-title{
+font-family: fantasy;
+color: #3d559d;
+}
+#reply_content_containter{
+    padding: 10px;
+    border: solid 2px white;
+}
+#reply_title{
+    padding: 10px;
+    border-bottom: solid;
+    font-size: medium;
+    font-weight: bold;
+
+}
+</style>
+<script>
+function reply_to_position(){
+    $('html').animate({scrollTop: $("#comment_form").offset().top - 60}, 300, function () {
+            CKEDITOR.instances['id_text'].focus();
+        });
+}
+
+String.prototype.format = function () {
+var str = this
+for (var i = 0; i < arguments.length; i++) {
+    var str = str.replace(new RegExp('\\{' + i + '\\}', 'g'), arguments[i])//正则表达式
+}
+;
+return str;
+};
+
+$("#comment_form").submit(function () {
+    //判断为空
+    if (CKEDITOR.instances['id_text'].document.getBody().getText().trim() == '') {
+        $('#comment_error').text('评论内容不能为空');
+        return false;
+    } else {
+        $('#comment_error').text('');
+    }
+    //更新数据到textarea
+    CKEDITOR.instances['id_text'].updateElement();
+    //异步提交
+    $.ajax(
+        {
+            url:{% url 'commit' %},
+            type: 'POST',
+            data: $(this).serialize(),
+            cache: false,
+            success: function (data) {
+                console.log(data)
+
+                //插入数据
+                if (data['status'] == 'SUCCESS') {
+                    if ($('#reply_comment_id').val() == "0") {
+                        //插入评论
+                        var comment_html = '<li class="media comment_item" id="root_{0}">\n' +
+                            ' <figure style="border-radius: 15%;background-color: mediumpurple;width: 60px;height: 60px;color: white" class="floatleft">\n' +
+                            ' <img class="media-object" src="{5}" alt="{1}">\n'    +
+                            '</figure>\n' +
+                            '<div class="media-body"> <h5 class="media-heading">{1}<span class="time">({2})</span></h4>\n' +
+                            ' <div class="comment-meta">\n' +
+                            '  <div class="comment-extra ">\n' +
+                            ' <div id="comment_{0}"><span class="comment_text_{0}">{3}</span>' +
+                            '  <div class="comment_footer">\n' +
+                            '  <a  onclick="delete_comment({0},\'#root_\')">删除</a>\n' +
+                            '<span class="like" onclick="likeChange(this,\'{4}\',{0})">\n' +
+                            '  <span class=" fa fa-a-c-up   "><i class="fa fa-thumbs-up"></i></span>\n' +
+                            '<span class="like_num">0</span>\n' +
+                            ' </span>\n' +
+                            '  <a class="reload" href="javascript:reply({0});">Reply<i class="fa fa-share"></i></a>\n' +
+                            ' </div></div>\n' +
+                            '</div>\n' +
+                            '  </div>\n' +
+                            ' </div>\n' +
+                            ' </li>';
+                        comment_html = comment_html.format(data['pk'], data['username'], data['comment_time'], data['text'], data['content_type'],data['picture_url']);
+                        $("#comment_list").prepend(comment_html);
+                        $("#comment_error").text('评论成功');
+
+
+                    } else {
+                        //插入回复
+                        var reply_html =' <div class="reply_item" id="root_reply_{3}">\n' +
+                            ' <figure style="border-radius: 15%;background-color: mediumpurple;width: 60px;height: 60px;color: white" class="floatleft">\n' +
+                            '<img class="media-object" src="{6}" alt="{0}" style="border-radius: 15%" width="60px">\n' +
+                            ' </figure>\n' +
+                            ' <div class="comment-meta">\n' +
+                            '        <h5 class="media-heading">{0} <span class="time">(刚刚):</span><span>回复:</span><span>{2}:</span></h4>\n' +
+                            '        <div class="comment-extra ">\n' +
+                            '            <div id="comment_{3}"><span class="comment_text_{3}">{4}</span></div>\n<div class=comment_footer>' +
+                            '             <a  onclick="delete_comment({3},\'#root_reply_\')" >删除</a>\n' +
+                            '             <span class="like" onclick="likeChange(this,\'{5}\',{3})">\n' +
+                            '                <span class=" fa fa-a-c-up  "><i class="fa fa-thumbs-up"></i></span>\n' +
+                            '                <span class="like_num">0</span>\n' +
+                            '             </span>\n' +
+                            '            <a href="javascript:reply({3});">回复<i class="fa fa-share"></i></a>\n</div>' +
+                            '        </div>\n' +
+                            '    </div>\n' +
+                            '</div>';
+                        reply_html = reply_html.format(data['username'], data['comment_time'], data['reply_to'], data['pk'], data['text'], data['content_type'],data['picture_url'])
+                        $("#comment_" + data['root_pk']).append(reply_html);
+                        $("#comment_error").text('回复成功');
+                    }
+
+                    //清空编辑框内容
+                    CKEDITOR.instances['id_text'].setData('');
+                    $("#reply_content_containter").hide();
+                    $('#reply_comment_id').val('0');
+                    $('#no_comment').remove();
+
+
+                } else {
+                    //显示错误信息
+                    $('#comment_error').text(data['message']);
+                }
+
+            },
+            error: function (xhr) {
+                console.log(xhr)
+            }
+        }
+    );
+    return false;
+});
+$('#del_reply').click(function () {
+    CKEDITOR.instances['id_text'].setData('');
+    $("#reply_content_containter").hide();
+    $('#reply_comment_id').val('0');
+})
+
+function reply(reply_comment_id) {
+    //设置值
+
+    try {
+        $('#reply_comment_id').val(reply_comment_id);
+        var html = $(".comment_text_" + reply_comment_id).html();
+        $('#reply_content').html(html);
+        $("#reply_content_containter").show();
+        $('html').animate({scrollTop: $("#comment_form").offset().top - 60}, 300, function () {
+            CKEDITOR.instances['id_text'].focus();
+        });
+        //取消回复按钮
+
+    } catch (err) {
+        console.log('open')
+        $('#login_modal').modal('show');
+    }
+
+
+};
+
+function likeChange(obj, content_type, object_id) {
+    var is_like = obj.getElementsByClassName('active').length == 0
+    $.ajax({
+        url: '{%  url 'like_change' %}',
+        type: 'GET',
+        data: {
+            content_type: content_type,
+            object_id: object_id,
+            is_like: is_like,
+        },
+        cache: false,
+        success: function (data) {
+            console.log(data)
+            if (data['status'] == 'SUCCESS') {
+                //更新点赞状态
+                var element = $(obj.getElementsByClassName('fa fa-thumbs-up'));
+
+                if (is_like) {
+                    element.addClass('active');
+                } else {
+                    element.removeClass('active');
+
+
+                }
+                //更新点赞数量
+                var like_num = $(obj.getElementsByClassName('like_num'));
+
+                like_num.text(data['liked_num']);
+            } else {
+                if (data['code'] == 400) {
+                    $('#login_modal').modal('show');
+                } else {
+                    layer.alert(data['message']);
+                }
+            }
+        },
+        error: function (xhr) {
+            console.log(xhr)
+        }
+    })
+}
+function collectChange(obj, content_type, object_id) {
+    var is_collect = obj.getElementsByClassName('active').length == 0
+    $.ajax({
+        url: '{%  url 'collect_change' %}',
+        type: 'GET',
+        data: {
+            content_type: content_type,
+            object_id: object_id,
+            is_collect: is_collect,
+        },
+        cache: false,
+        success: function (data) {
+            console.log(data)
+            if (data['status'] == 'SUCCESS') {
+                //更新收藏状态
+                var element = $(obj.getElementsByClassName('collect_status'));
+
+                if (is_collect) {
+                    element.addClass('active');
+                     layer.alert("添加收藏!")
+                } else {
+                    element.removeClass('active');
+                     layer.alert("取消收藏成功!");
+
+                }
+                //更新收藏数量
+                var collect_num = $(obj.getElementsByClassName('collect_num'));
+
+                collect_num.text(data['collect_num']);
+            } else {
+                if (data['code'] == 400) {
+                    $('#login_modal').modal('show');
+                } else {
+                    layer.alert(data['message']);
+
+                }
+            }
+        },
+        error: function (xhr) {
+            console.log(xhr)
+        }
+    })
+}
+//删除评论
+ function delete_comment(pk,b) {
+    layer.open({
+            title:'确认删除',
+            content:"确认要删除这条评论吗?",
+            yes: function(index){ $.ajax({
+           url:'{% url 'delete_comment' %}',
+           type:'POST',
+           data:{
+               pk:pk
+           },
+
+            cache:false,
+            success:function (data) {
+                  layer.close(index);
+                if(data['status']=='SUCCESS'){
+                    layer.alert('删除成功')
+                  //  alert(b+pk)
+                    $(b+pk).remove();
+                }else{
+                    layer.alert('操作失败');
+                }
+            },
+            complete:function (xhr) {
+                xhr=null;
+            }
+
+        })} ,
+        })
+
+};
+</script>
+{% endblock %}
